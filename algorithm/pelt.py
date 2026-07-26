@@ -42,7 +42,7 @@ class PELT:
         """
 
         analysis_data = (
-            data[[variable]]
+            data[["Quarter", variable]]
             .dropna()
             .reset_index(drop=True)
             .copy()

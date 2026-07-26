@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import math
 
 class ZivotAndrews:
-    def run_zivot_andrews_break_test(column_name : str, analysis_df: pd.DataFrame):
+    def run(column_name : str, analysis_df: pd.DataFrame):
         za_result = zivot_andrews(analysis_df[column_name], maxlag=1, regression='ct')
         result_for_col = {
             "Variable": column_name,
