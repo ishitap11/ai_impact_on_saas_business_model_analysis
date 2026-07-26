@@ -12,8 +12,8 @@ class PELT:
     def run(
             data,
             variable,
-            penalty=3.0,
-            model="rbf",
+            penalty,
+            model,
             min_size=4
     ):
         """

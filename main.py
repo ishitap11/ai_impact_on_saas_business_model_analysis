@@ -53,12 +53,21 @@ def run_for_sap(run_full= False):
     df = df.reset_index(drop=True)
 
     print("Running PELT for SAP...")
-    run_pelt_for_all_variables(df, SAP_ANALYSIS_THESIS_VARS, 12, model="rbf", penalty=2.0, min_size=4)
+    run_pelt_for_all_variables(df, SAP_ANALYSIS_THESIS_VARS, 12, min_size=4)
 
     if run_full:
         print("Running Chow Test for SAP...")
-        result_df = pd.DataFrame(run_chow_test(df[12:][:], SAP_ANALYSIS_THESIS_VARS, "Q1-24"))
-        print(result_df)
+        display_columns = [
+            "Variable",
+            "Pre-break observations",
+            "Post-break observations",
+            "Chow F-statistic",
+            "Critical value",
+            "p-value",
+            "Structural break at 5%"
+        ]
+        result = pd.DataFrame(run_chow_test(df[12:][:], SAP_ANALYSIS_THESIS_VARS, "Q1-24"))
+        print(result[display_columns].to_string(index=False))
 
 
 def run_for_teamviewer(run_full= False):
@@ -74,12 +83,21 @@ def run_for_teamviewer(run_full= False):
     df = df.reset_index(drop=True)
 
     print("Running PELT for TeamViewer...")
-    run_pelt_for_all_variables(df, TMV_ANALYSIS_THESIS_VARS,8, model="rbf", penalty=3.0, min_size=4)
+    run_pelt_for_all_variables(df, TMV_ANALYSIS_THESIS_VARS,8, min_size=4)
 
     if run_full:
         print("Running Chow Test for TeamViewer...")
+        display_columns = [
+            "Variable",
+            "Pre-break observations",
+            "Post-break observations",
+            "Chow F-statistic",
+            "Critical value",
+            "p-value",
+            "Structural break at 5%"
+        ]
         result = pd.DataFrame(run_chow_test(df[8:][:], TMV_ANALYSIS_THESIS_VARS, "Q4-24"))
-        print(result)
+        print(result[display_columns].to_string(index=False))
 
 def run(full_mode: bool):
     run_for_teamviewer(run_full=full_mode)

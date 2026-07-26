@@ -1,26 +1,39 @@
+import math
+
 import pandas as pd
 from matplotlib import pyplot as plt
 
 from algorithm import ChowTest, PELT, ZivotAndrews
 
 
+def calculate_safe_pen(length: int):
+    bic_pen = math.log(length)
+    return bic_pen*2.5
+
+def get_model_for_var(variable: str):
+    ratio_vars = ["Operating margin", "Gross margin", "NRR (%)","Gross Margin (%)", "Adjusted EBITDA margin"]
+    if variable in ratio_vars:
+        return "rbf"
+    else:
+        return "l1"
+
+
 def run_pelt_for_all_variables(
         df: pd.DataFrame,
         analysis_vars,
         n,
-        model:str,
-        penalty=3.0,
         min_size=4,
         plot=False):
     all_results = []
     plotting_results = {}
 
     for variable in analysis_vars:
+        data = df[n:][:]
         result, analysis_data, breakpoints = PELT.run(
-            data=df[n:][:],  # Considering quarters after Y2020 to disregard COVID-19 event observation on variables
+            data=data,  # Considering quarters after Y2020 to disregard COVID-19 event observation on variables
             variable=variable,
-            penalty=penalty,
-            model=model,
+            penalty=calculate_safe_pen(len(data[variable])),
+            model=get_model_for_var(variable),
             min_size=min_size
         )
 
