@@ -1,5 +1,6 @@
 import pandas as pd
 from utility import import_german_csv, run_chow_test, run_pelt_for_all_variables
+from utility.run_helpers import run_ai_comparator
 
 TMV_ANALYSIS_THESIS_VARS = [
         "Total revenue",
@@ -53,7 +54,7 @@ def run_for_sap(run_full= False):
     df = df.reset_index(drop=True)
 
     print("Running PELT for SAP...")
-    run_pelt_for_all_variables(df, SAP_ANALYSIS_THESIS_VARS, 12, min_size=4)
+    pelt_results = run_pelt_for_all_variables(df, SAP_ANALYSIS_THESIS_VARS, 12, min_size=4)
 
     if run_full:
         print("Running Chow Test for SAP...")
@@ -68,6 +69,7 @@ def run_for_sap(run_full= False):
         ]
         result = pd.DataFrame(run_chow_test(df[12:][:], SAP_ANALYSIS_THESIS_VARS, "Q1-24"))
         print(result[display_columns].to_string(index=False))
+    return pelt_results
 
 
 def run_for_teamviewer(run_full= False):
@@ -83,7 +85,7 @@ def run_for_teamviewer(run_full= False):
     df = df.reset_index(drop=True)
 
     print("Running PELT for TeamViewer...")
-    run_pelt_for_all_variables(df, TMV_ANALYSIS_THESIS_VARS,8, min_size=4)
+    pelt_results =run_pelt_for_all_variables(df, TMV_ANALYSIS_THESIS_VARS,8, min_size=4)
 
     if run_full:
         print("Running Chow Test for TeamViewer...")
@@ -98,10 +100,12 @@ def run_for_teamviewer(run_full= False):
         ]
         result = pd.DataFrame(run_chow_test(df[8:][:], TMV_ANALYSIS_THESIS_VARS, "Q4-24"))
         print(result[display_columns].to_string(index=False))
+    return pelt_results
 
 def run(full_mode: bool):
-    run_for_teamviewer(run_full=full_mode)
-    run_for_sap(run_full=full_mode)
+    tmv_pelt_results = run_for_teamviewer(run_full=full_mode)
+    sap_pelt_results = run_for_sap(run_full=full_mode)
+    run_ai_comparator([tmv_pelt_results, sap_pelt_results])
 
 if __name__ == '__main__':
     run(full_mode=True)

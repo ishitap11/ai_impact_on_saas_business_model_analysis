@@ -3,6 +3,8 @@ import math
 import pandas as pd
 from matplotlib import pyplot as plt
 
+from ai_analysis import TeamviewerAIEvent, SapAIEvent
+from ai_analysis.comparator import Comparator
 from algorithm import ChowTest, PELT, ZivotAndrews
 
 
@@ -96,8 +98,7 @@ def run_pelt_for_all_variables(
 
         fig.tight_layout()
         plt.show()
-    print(pelt_results.to_string(index=False))
-    return all_results
+    return pelt_results
 
 def run_zivot_andrews(analysis_df: pd.DataFrame, variables):
     result = []
@@ -133,3 +134,17 @@ def run_chow_test(analysis_df: pd.DataFrame, analysis_thesis_variables, breakpoi
 
         results.append(result)
     return results
+
+def run_ai_comparator(pelt_results):
+    tmv_result = pelt_results[0].copy()
+    sap_result = pelt_results[1].copy()
+
+    tmv = TeamviewerAIEvent()
+    tmv_ai_comp = Comparator(breakpoint_column="breakpoint", ai_event_signal=tmv.get_ai_event_signal())
+    print("Running AI comparator for TeamViewer...")
+    print(tmv_ai_comp.compare(tmv_result).to_string(index=False))
+
+    sap = SapAIEvent()
+    sap_ai_comp = Comparator(breakpoint_column="breakpoint", ai_event_signal=sap.get_ai_event_signal())
+    print("Running AI comparator for TeamViewer...")
+    print(sap_ai_comp.compare(sap_result).to_string(index=False))

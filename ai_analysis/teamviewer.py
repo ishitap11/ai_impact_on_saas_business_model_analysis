@@ -10,8 +10,9 @@ class TeamviewerAIEvent:
         self.events_df = self._import_csv()
 
     def _import_csv(self):
-        full_df = pd.read_csv('TeamViewer_AI_Event_Timeline.csv', sep=';')
+        full_df = pd.read_csv('ai_analysis/TeamViewer_AI_Event_Timeline.csv', sep=';')
         df = full_df[SIGNAL_VARS].copy()
+        df.set_index("Quarter", inplace=True)
         return df
 
     def get_ai_event_signal(self) -> pd.Series:
