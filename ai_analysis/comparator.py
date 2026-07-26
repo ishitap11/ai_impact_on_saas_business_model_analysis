@@ -2,9 +2,10 @@ import pandas as pd
 
 
 class Comparator:
-    def __init__(self, breakpoint_column: str, ai_event_signal: pd.Series):
+    def __init__(self, breakpoint_column: str, ai_event_signal: pd.Series, aaci_score: pd.Series):
         self.breakpoint_column = breakpoint_column
         self.ai_event_signal = ai_event_signal
+        self.aaci_score = aaci_score
 
     def break_point_in_ai_signal(
         self,
@@ -19,6 +20,22 @@ class Comparator:
             .map(self.ai_event_signal)
             .fillna(0)
             .eq(1)
+            .astype(bool)
+        )
+
+    def break_point_with_non_zero_aaci_score(
+        self,
+        breakpoints: pd.Series
+    ) -> pd.Series:
+        """
+        For each breakpoint quarter, return True if aaci_score
+        contains that quarter and its value not 0.
+        """
+        return (
+            breakpoints
+            .map(self.aaci_score)
+            .fillna(0)
+            .ne(0)
             .astype(bool)
         )
 
@@ -54,6 +71,15 @@ class Comparator:
             .transform(
                 lambda breakpoints:
                 self.break_point_in_ai_signal(breakpoints)
+            )
+        )
+
+        result["break_point_with_non_zero_aaci_score"] = (
+            result
+            .groupby("Variable")[self.breakpoint_column]
+            .transform(
+                lambda breakpoints:
+                self.break_point_with_non_zero_aaci_score(breakpoints)
             )
         )
 

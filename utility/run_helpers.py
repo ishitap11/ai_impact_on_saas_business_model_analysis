@@ -140,11 +140,11 @@ def run_ai_comparator(pelt_results):
     sap_result = pelt_results[1].copy()
 
     tmv = TeamviewerAIEvent()
-    tmv_ai_comp = Comparator(breakpoint_column="breakpoint", ai_event_signal=tmv.get_ai_event_signal())
+    tmv_ai_comp = Comparator(breakpoint_column="breakpoint", ai_event_signal=tmv.get_ai_event_signal(), aaci_score=tmv.get_aaci_score())
     print("Running AI comparator for TeamViewer...")
     print(tmv_ai_comp.compare(tmv_result).to_string(index=False))
 
     sap = SapAIEvent()
-    sap_ai_comp = Comparator(breakpoint_column="breakpoint", ai_event_signal=sap.get_ai_event_signal())
-    print("Running AI comparator for TeamViewer...")
+    sap_ai_comp = Comparator(breakpoint_column="breakpoint", ai_event_signal=sap.get_ai_event_signal(), aaci_score=sap.get_aaci_score())
+    print("Running AI comparator for SAP...")
     print(sap_ai_comp.compare(sap_result).to_string(index=False))
