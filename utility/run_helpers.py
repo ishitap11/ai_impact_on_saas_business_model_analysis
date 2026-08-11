@@ -5,8 +5,148 @@ from matplotlib import pyplot as plt
 
 from ai_analysis import TeamviewerAIEvent, SapAIEvent
 from ai_analysis.comparator import Comparator
-from algorithm import ChowTest, PELT, ZivotAndrews
+from algorithm import ChowTest, PELT, ZivotAndrews, InterruptedTimeSeries
 
+
+TMV_ANALYSIS_THESIS_VARS = [
+        "Total revenue",
+        "NRR (%)",
+        "Gross profit",
+        "Gross Margin (%)",
+        "Adjusted EBITDA",
+        "Adjusted EBITDA margin",
+        "R&D",
+        "Cost of goods sold",
+        "Sales & Marketing",
+        "QoQ Total revenue",
+        "QoQ NRR (%)",
+        "QoQ Gross profit",
+        "QoQ Gross Margin (%)",
+        "QoQ Adjusted EBITDA",
+        "QoQ Adjusted EBITDA margin",
+        "QoQ R&D",
+        "QoQ Cost of goods sold",
+        "QoQ Sales & Marketing",
+        "YoY Total revenue",
+        "YoY NRR (%)",
+        "YoY Gross profit",
+        "YoY Gross Margin (%)",
+        "YoY Adjusted EBITDA",
+        "YoY Adjusted EBITDA margin",
+        "YoY R&D",
+        "YoY Cost of goods sold",
+        "YoY Sales & Marketing"
+    ]
+SAP_ANALYSIS_THESIS_VARS = [
+    "total revenue",
+    "cloud revenue",
+    "software license revenue",
+    "Gross profit",
+    "Gross margin",
+    "Operating profit",
+    "Operating margin",
+    "R&D",
+    "Cost of goods sold",
+    "Sales and Marketing",
+    "QoQ total revenue",
+    "QoQ cloud revenue",
+    "QoQ software license revenue",
+    "QoQ Gross profit",
+    "QoQ Operating profit",
+    "QoQ R&D",
+    "QoQ Cost of goods sold",
+    "QoQ Sales and Marketing",
+    "YoY total revenue",
+    "YoY cloud revenue",
+    "YoY software license revenue",
+    "YoY Gross profit",
+    "YoY Operating profit",
+    "YoY R&D",
+    "YoY Cost of goods sold",
+    "YoY Sales and Marketing"
+]
+
+
+def calculate_change(
+    df: pd.DataFrame,
+    column_name: str,
+    yoy: bool = False
+) -> pd.Series:
+    """
+    Calculate quarter-over-quarter or year-over-year percentage change
+    for a dataframe column.
+
+    Formula:
+        QoQ (%) = ((current quarter / previous quarter) - 1) * 100
+
+        YoY (%) = ((current quarter / same quarter last year) - 1) * 100
+
+    Parameters
+    ----------
+    df:
+        Dataframe containing quarterly data.
+
+    column_name:
+        Name of the numeric column to calculate the percentage change for.
+
+    yoy:
+        If False (default), calculate quarter-over-quarter change.
+        If True, calculate year-over-year change using the value
+        from 4 quarters earlier.
+
+    Returns
+    -------
+    pd.Series
+        Percentage change values.
+
+        For QoQ, the first observation will be NaN.
+
+        For YoY, the first four observations will be NaN because
+        the corresponding quarter from the previous year is unavailable.
+    """
+    if column_name not in df.columns:
+        raise KeyError(
+            f"Column '{column_name}' was not found in the dataframe."
+        )
+
+    numeric_series = pd.to_numeric(
+        df[column_name],
+        errors="coerce"
+    )
+
+    periods = 4 if yoy else 1
+
+    return (
+        numeric_series
+        .pct_change(periods=periods, fill_method=None)
+        * 100
+    )
+
+def export_dataframe_to_csv(
+    df: pd.DataFrame,
+    filename: str
+) -> None:
+    """
+    Export a dataframe as a CSV file to the current working directory.
+
+    Parameters
+    ----------
+    df:
+        DataFrame to export.
+
+    filename:
+        Name of the output file.
+        The '.csv' extension is added automatically if omitted.
+    """
+    if not filename.lower().endswith(".csv"):
+        filename += ".csv"
+
+    df.to_csv(
+        filename,
+        index=False
+    )
+
+    print(f"CSV exported successfully: {filename}")
 
 def calculate_safe_pen(length: int):
     bic_pen = math.log(length)
@@ -148,3 +288,14 @@ def run_ai_comparator(pelt_results):
     sap_ai_comp = Comparator(breakpoint_column="breakpoint", ai_event_signal=sap.get_ai_event_signal(), aaci_score=sap.get_aaci_score())
     print("Running AI comparator for SAP...")
     print(sap_ai_comp.compare(sap_result).to_string(index=False))
+
+def run_its_analysis(data: pd.DataFrame, company: str):
+    if company == "tmv":
+        tmv = TeamviewerAIEvent()
+        its = InterruptedTimeSeries(data, tmv.get_ai_event_signal(), TMV_ANALYSIS_THESIS_VARS)
+    else:
+        sap = SapAIEvent()
+        its = InterruptedTimeSeries(data, sap.get_ai_event_signal(), SAP_ANALYSIS_THESIS_VARS)
+    result = its.run(plot=False, print_summary=False, save_output=company+"_interrupted_time_series_results.txt")
+    its.effect_table()
+    return result

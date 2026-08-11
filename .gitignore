@@ -2,4 +2,7 @@
 .uv/
 .idea/
 __pycache__/
+.DS_Store
 *.pyc
+*interrupted_time_series_results.txt
+*.csv
