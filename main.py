@@ -1,6 +1,6 @@
 import pandas as pd
-from utility import import_german_csv, run_chow_test, run_pelt_for_all_variables
-from utility.run_helpers import run_ai_comparator, run_its_analysis, SAP_ANALYSIS_THESIS_VARS, TMV_ANALYSIS_THESIS_VARS, \
+from utility import import_german_csv, run_pelt_for_all_variables
+from utility.run_helpers import run_its_on_post_ai_event, SAP_ANALYSIS_THESIS_VARS, TMV_ANALYSIS_THESIS_VARS, \
     calculate_change, export_dataframe_to_csv
 
 teamviewer_file_path = "TeamViewer_Long_Format_Quarterly_Dataset.csv"
@@ -50,23 +50,11 @@ def run_for_sap(run_sbt= False, run_its=False):
         print("Running PELT for SAP...")
         pelt_results = run_pelt_for_all_variables(df, SAP_ANALYSIS_THESIS_VARS, 12, min_size=4)
         export_dataframe_to_csv(pelt_results, filename="sap_pelt_test.csv")
-        print("Running Chow Test for SAP...")
-        display_columns = [
-            "Variable",
-            "Pre-break observations",
-            "Post-break observations",
-            "Chow F-statistic",
-            "Critical value",
-            "p-value",
-            "Structural break at 5%"
-        ]
-        result = pd.DataFrame(run_chow_test(df[12:][:], SAP_ANALYSIS_THESIS_VARS, "Q1-24"))
-        export_dataframe_to_csv(result, filename="sap_chow_test.csv")
         return pelt_results
 
     if run_its:
         print("Running ITS for SAP...")
-        result = run_its_analysis(df[12:-1][:], company="sap")
+        result = run_its_on_post_ai_event(df[12:-1][:], company="sap")
         return result
     return None
 
@@ -102,22 +90,10 @@ def run_for_teamviewer(run_sbt= False, run_its=False):
         print("Running PELT for TeamViewer...")
         pelt_results = run_pelt_for_all_variables(df, TMV_ANALYSIS_THESIS_VARS, 8, min_size=4)
         export_dataframe_to_csv(pelt_results, filename="teamviewer_pelt_test.csv")
-        print("Running Chow Test for TeamViewer...")
-        display_columns = [
-            "Variable",
-            "Pre-break observations",
-            "Post-break observations",
-            "Chow F-statistic",
-            "Critical value",
-            "p-value",
-            "Structural break at 5%"
-        ]
-        result = pd.DataFrame(run_chow_test(df[8:][:], TMV_ANALYSIS_THESIS_VARS, "Q4-24"))
-        export_dataframe_to_csv(result, filename="teamviewer_chow_test.csv")
         return pelt_results
     if run_its:
         print("Running ITS for TeamViewer...")
-        result = run_its_analysis(df[8:-1][:], company="tmv")
+        result = run_its_on_post_ai_event(df[8:-1][:], company="tmv")
         return result
 
     return None

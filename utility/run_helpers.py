@@ -289,7 +289,7 @@ def run_ai_comparator(pelt_results):
     print("Running AI comparator for SAP...")
     print(sap_ai_comp.compare(sap_result).to_string(index=False))
 
-def run_its_analysis(data: pd.DataFrame, company: str):
+def run_its_on_post_ai_event(data: pd.DataFrame, company: str):
     if company == "tmv":
         tmv = TeamviewerAIEvent()
         its = InterruptedTimeSeries(data, tmv.get_ai_event_signal(), TMV_ANALYSIS_THESIS_VARS)
