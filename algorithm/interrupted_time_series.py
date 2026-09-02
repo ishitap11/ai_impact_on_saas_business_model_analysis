@@ -171,6 +171,7 @@ class InterruptedTimeSeries:
         *,
         plot: bool = False,
         print_summary: bool = False,
+        company: str = None,
         save_output: str = None,
         alpha: float = 0.05,
     ) -> dict[str, cp.InterruptedTimeSeries]:
@@ -221,9 +222,16 @@ class InterruptedTimeSeries:
 
 
             if plot:
-                result.plot()
-                plt.suptitle(f"CausalPy ITS: {variable}")
-                plt.show()
+                fig, ax = result.plot(show=False)
+                fig.suptitle(f"CausalPy ITS: {company}: {variable}")
+                fig.tight_layout()
+
+                output_dir = Path.cwd() / "ITS_plots"
+                output_dir.mkdir(parents=True, exist_ok=True)
+
+                output_path = output_dir / f"{company}_{variable}_ITS.png"
+                plt.savefig(output_path, dpi=300, bbox_inches="tight")
+                #plt.show()
 
 
             if save_output is not None:

@@ -1,4 +1,5 @@
 import math
+from pathlib import Path
 
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -9,15 +10,15 @@ from algorithm import ChowTest, PELT, ZivotAndrews, InterruptedTimeSeries
 
 
 TMV_ANALYSIS_THESIS_VARS = [
-        "Total revenue",
-        "NRR (%)",
-        "Gross profit",
-        "Gross Margin (%)",
-        "Adjusted EBITDA",
-        "Adjusted EBITDA margin",
-        "R&D",
-        "Cost of goods sold",
-        "Sales & Marketing",
+        # "Total revenue",
+        # "NRR (%)",
+        # "Gross profit",
+        # "Gross Margin (%)",
+        # "Adjusted EBITDA",
+        # "Adjusted EBITDA margin",
+        # "R&D",
+        # "Cost of goods sold",
+        # "Sales & Marketing",
         "QoQ Total revenue",
         "QoQ NRR (%)",
         "QoQ Gross profit",
@@ -38,16 +39,16 @@ TMV_ANALYSIS_THESIS_VARS = [
         "YoY Sales & Marketing"
     ]
 SAP_ANALYSIS_THESIS_VARS = [
-    "total revenue",
-    "cloud revenue",
-    "software license revenue",
-    "Gross profit",
-    "Gross margin",
-    "Operating profit",
-    "Operating margin",
-    "R&D",
-    "Cost of goods sold",
-    "Sales and Marketing",
+    # "total revenue",
+    # "cloud revenue",
+    # "software license revenue",
+    # "Gross profit",
+    # "Gross margin",
+    # "Operating profit",
+    # "Operating margin",
+    # "R&D",
+    # "Cost of goods sold",
+    # "Sales and Marketing",
     "QoQ total revenue",
     "QoQ cloud revenue",
     "QoQ software license revenue",
@@ -165,7 +166,8 @@ def run_pelt_for_all_variables(
         analysis_vars,
         n,
         min_size=4,
-        plot=False):
+        company:str =  None,
+        plot=True):
     all_results = []
     plotting_results = {}
 
@@ -193,7 +195,7 @@ def run_pelt_for_all_variables(
     if pelt_results.empty:
         print("No breakpoints detected with the selected penalty.")
     elif plot:
-        fig, axes = plt.subplots(5, 2, figsize=(30, 15))
+        fig, axes = plt.subplots(9, 2, figsize=(12, 20))
         axes = axes.flatten()
 
         for ax, variable in zip(axes, analysis_vars):
@@ -237,6 +239,11 @@ def run_pelt_for_all_variables(
         )
 
         fig.tight_layout()
+        output_dir = Path.cwd() / "PELT_plots"
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        output_path = output_dir / f"{company}_PELT.png"
+        plt.savefig(output_path, dpi=300, bbox_inches="tight")
         plt.show()
     return pelt_results
 
@@ -296,6 +303,6 @@ def run_its_on_post_ai_event(data: pd.DataFrame, company: str):
     else:
         sap = SapAIEvent()
         its = InterruptedTimeSeries(data, sap.get_ai_event_signal(), SAP_ANALYSIS_THESIS_VARS)
-    result = its.run(plot=False, print_summary=False, save_output=company+"_interrupted_time_series_results.txt")
+    result = its.run(plot=True, print_summary=False, company=company, save_output=company+"_interrupted_time_series_results.txt")
     its.effect_table()
     return result

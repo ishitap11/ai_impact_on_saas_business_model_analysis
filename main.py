@@ -48,15 +48,12 @@ def run_for_sap(run_sbt= False, run_its=False):
 
     if run_sbt:
         print("Running PELT for SAP...")
-        pelt_results = run_pelt_for_all_variables(df, SAP_ANALYSIS_THESIS_VARS, 12, min_size=4)
+        pelt_results = run_pelt_for_all_variables(df, SAP_ANALYSIS_THESIS_VARS, 12, min_size=4, company="sap")
         export_dataframe_to_csv(pelt_results, filename="sap_pelt_test.csv")
-        return pelt_results
 
     if run_its:
         print("Running ITS for SAP...")
         result = run_its_on_post_ai_event(df[12:-1][:], company="sap")
-        return result
-    return None
 
 
 def run_for_teamviewer(run_sbt= False, run_its=False):
@@ -88,21 +85,19 @@ def run_for_teamviewer(run_sbt= False, run_its=False):
     df = df.reset_index(drop=True)
     if run_sbt:
         print("Running PELT for TeamViewer...")
-        pelt_results = run_pelt_for_all_variables(df, TMV_ANALYSIS_THESIS_VARS, 8, min_size=4)
+        pelt_results = run_pelt_for_all_variables(df, TMV_ANALYSIS_THESIS_VARS, 8, min_size=4, company="teamviewer")
         export_dataframe_to_csv(pelt_results, filename="teamviewer_pelt_test.csv")
-        return pelt_results
+        #return pelt_results
     if run_its:
         print("Running ITS for TeamViewer...")
         result = run_its_on_post_ai_event(df[8:-1][:], company="tmv")
-        return result
-
-    return None
+        #return result
 
 def run(sbt_mode: bool, its_mode: bool):
-    tmv_pelt_results = run_for_teamviewer(run_sbt=sbt_mode, run_its=its_mode)
-    sap_pelt_results = run_for_sap(run_sbt=sbt_mode, run_its=its_mode)
+    run_for_teamviewer(run_sbt=sbt_mode, run_its=its_mode)
+    run_for_sap(run_sbt=sbt_mode, run_its=its_mode)
     #run_ai_comparator([tmv_pelt_results, sap_pelt_results])
 
 if __name__ == '__main__':
-    run(sbt_mode=True, its_mode=False)
+    run(sbt_mode=True, its_mode=True)
 
